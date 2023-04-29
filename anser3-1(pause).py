@@ -12,7 +12,7 @@ D = 0.4   # 无人机边长
 v = 400/3.6      # 无人机发射速度，在300~400之间，dv为定值
 alpha = np.radians(45)   # 俯冲角度，dalpha为定制
 u = 6           # 风速
-beta = np.radians(45)    # 风向
+beta = np.radians(0)    # 风向
 
 #俯冲角度alpha与飞行速度V的变化率dalpha、dv为定值
 def object_func(v,alpha,u,beta):
@@ -32,7 +32,7 @@ def grad_descend(v_init,alpha_init,u,beta,lr,n):
     v = v_init
     alpha = alpha_init
     for _ in range(n):
-        dv = 2*v
+        dv = 2*v*np.exp(np.sin(alpha-beta))
         # # dalpha = 2*(u * np.cos(beta)*np.sin(alpha)-np.sin(beta)*np.cos(alpha))*abs(np.cos(alpha - beta)) + \
         # #          v**2*abs(np.cos(alpha - beta))*(-np.sin(alpha-beta))
         if np.sin(alpha-beta)>0:
