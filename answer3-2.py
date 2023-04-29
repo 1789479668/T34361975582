@@ -1,6 +1,9 @@
 import numpy as np
+import matplotlib.pyplot as plt
 def objective_function(v, theta, w, phi, a, b, c, d):
     return a * v**2 + b * theta**2 + c * w**2 + d * phi**2
+
+F_list =[]
 def gradient_descent(v_init, theta_init, w_init, phi_init, a, b, c, d, lr, max_iter):
     v = v_init
     theta = theta_init
@@ -13,17 +16,20 @@ def gradient_descent(v_init, theta_init, w_init, phi_init, a, b, c, d, lr, max_i
         dphi = 2 * d * phi
         v -= lr * dv
         theta -= lr * dtheta
-        w -= lr * dw
-        phi -= lr * dphi
-
+        F_list.append(a * v**2 + b * theta**2 + c * w**2 + d * phi**2)
         if objective_function(v, theta, w, phi, a, b, c, d) < 1e-6:
             break
+    plt.plot(range(max_iter),F_list)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.title('Line Chart')
+    plt.show()
     return v, theta, w, phi
 # 初始化参数
-v_init = 300 / 3.6
+v_init = 400 / 3.6
 theta_init = np.radians(45)
 w_init = 6
-phi_init = np.radians()
+phi_init = np.radians(30)
 a, b, c, d = 1, 1, 1, 1
 lr = 0.001
 max_iter = 1000

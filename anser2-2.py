@@ -1,4 +1,4 @@
-import math
+import numpy as np
 
 # 设置参数
 g = 9.8     # 重力加速度
@@ -6,7 +6,7 @@ rho = 1.29   # 空气密度kg/m^3，ρ
 C = 0.5    # 风阻系数，球体为0.5
 m = 5     # 物资质量kg
 r = 0.08    # 物资半径m
-A = math.pi * (r ** 2)    # 横截面积m^2
+A = np.pi * (r ** 2)    # 横截面积m^2
 
 # 目标点坐标
 x_target = 10000
@@ -17,7 +17,7 @@ L_max = 3000
 H0_min = 300
 H0_max = 800
 alpha_min = 0.01
-alpha_max = math.pi/2
+alpha_max = np.pi/2
 
 # 设置遍历步长
 step_h = 1
@@ -49,22 +49,22 @@ def calc_L(v,vf,beta,H0,alpha):
     x = 0
     y = H0
     #作速度修正
-    vx = v*math.cos(alpha)
-    vy = -v*math.sin(alpha)
+    vx = v*np.cos(alpha)
+    vy = -v*np.sin(alpha)
 
 
     while y>0:
         # 计算空气阻力以及各方向的加速度
         # 相对于空气的速度
-        vx_a = vx - vf * math.cos(beta)
-        vy_a = vy - vf * math.sin(beta)
-        v_a = math.sqrt(vx_a**2 + vy_a**2)
+        vx_a = vx - vf * np.cos(beta)
+        vy_a = vy - vf * np.sin(beta)
+        v_a = np.sqrt(vx_a**2 + vy_a**2)
         # 计算v_a与x正半轴的夹角θ
-        theta = math.acos(vx_a/v_a)
+        theta = np.arccos(vx_a/v_a)
         # 计算空气阻力
         F_air_resistance = 0.5 * rho * v_a ** 2 * C * A
-        a_y = -g + F_air_resistance*math.sin(theta) / m
-        a_x = -F_air_resistance*math.cos(theta)/m
+        a_y = -g + F_air_resistance*np.sin(theta) / m
+        a_x = -F_air_resistance*np.cos(theta)/m
         # 根据欧拉法计算下一时刻的速度和位移
         vy = vy + a_y * dt
         y = y + vy * dt
@@ -72,7 +72,7 @@ def calc_L(v,vf,beta,H0,alpha):
         x = x + vx * dt
         # 更新时间
         t3 = t3 + dt
-    L = math.sqrt(x**2 + H0**2)
+    L = np.sqrt(x**2 + H0**2)
     return L,t3,x
 
 #遍历搜索，不同h0和alpha的值的影响
@@ -83,8 +83,8 @@ for h0 in range(H0_min, H0_max+1, step_h):
         L,t3,x3 = calc_L(v0+u0, vf, beta, h0, alpha)
         # 若L满足1000到3000则继续
         if L_min <= L <= L_max:
-            t2 = (800 - h0) / (v0 * math.sin(alpha))
-            x2 = (800 - h0) / math.tan(alpha)
+            t2 = (800 - h0) / (v0 * np.sin(alpha))
+            x2 = (800 - h0) / np.tan(alpha)
             x1 = 10000 - x2 - x3
             # 当x1>0
             if x1 > 0:

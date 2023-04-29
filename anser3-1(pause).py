@@ -15,7 +15,7 @@ u = 6           # 风速
 beta = np.radians(45)    # 风向
 
 #俯冲角度alpha与飞行速度V的变化率dalpha、dv为定值
-def object_func(v,alpha,u,beta,lambd_v,lambd_alpha):
+def object_func(v,alpha,u,beta):
     vx_a = v * np.cos(alpha) - u * np.cos(beta)
     vy_a = - v * np.sin(alpha) - u * np.sin(beta)
     va = np.sqrt(vx_a ** 2 + vy_a ** 2)
@@ -24,41 +24,37 @@ def object_func(v,alpha,u,beta,lambd_v,lambd_alpha):
     # 外界因素影响,俯冲角度alpha、飞行速度V、风速u、风向beta
     # 也即目标函数
     F = 0.5*(rho**2)*(va**2)*C*A
-    #添加正则化项
-    F += lambd_v*v**2+lambd_alpha*alpha**2
     return F
 
 F_list =[]
 # 先用梯度算法找到最佳点，在通过恒定的dv和dalpha去计算在300以前能改变多少值。
-def grad_descend(v_init,alpha_init,u,beta,lr,n,lambd_v,lambd_alpha):
+def grad_descend(v_init,alpha_init,u,beta,lr,n):
     v = v_init
     alpha = alpha_init
     for _ in range(n):
-        # dv = 2*v
+        dv = 2*v
         # # dalpha = 2*(u * np.cos(beta)*np.sin(alpha)-np.sin(beta)*np.cos(alpha))*abs(np.cos(alpha - beta)) + \
         # #          v**2*abs(np.cos(alpha - beta))*(-np.sin(alpha-beta))
-        # if np.sin(alpha-beta)>0:
-        #     dalpha = (v**2+u * np.cos(beta)**2+u * np.sin(beta)**2)*np.cos(alpha-beta) - \
-        #             2*v*(-np.sin(alpha)*u * np.cos(beta)+np.cos(alpha)*u * np.sin(beta))*np.sin(alpha-beta)-\
-        #             2*v*(np.cos(alpha)*u * np.cos(beta)+np.sin(alpha)*u * np.sin(beta))*np.cos(alpha-beta)
-        # else:
-        #     dalpha = -(v**2+u * np.cos(beta)**2+u * np.sin(beta)**2)*np.cos(alpha-beta) + \
-        #             2*v*(-np.sin(alpha)*u * np.cos(beta)+np.cos(alpha)*u * np.sin(beta))*np.sin(alpha-beta)+\
-        #             2*v*(np.cos(alpha)*u * np.cos(beta)+np.sin(alpha)*u * np.sin(beta))*np.cos(alpha-beta)
-        dv = 2*v*np.cos(alpha)*np.cos(alpha-beta)+2*v*np.sin(alpha-beta)**2-\
-             2*u * np.cos(beta)*np.cos(alpha)-2*u * np.sin(beta)*np.sin(alpha)*np.sin(alpha-beta)
-        dalpha = -2*v**2*np.sin(alpha-beta)*np.cos(alpha)*np.sin(alpha)+\
-                2*v*np.cos(alpha)*np.sin(alpha-beta)*(v*np.sin(alpha)-u * np.sin(beta))-\
-                2*u * np.cos(beta)*v*np.sin(alpha)*np.cos(alpha)
-        dv += 2*lambd_v*v
-        dalpha += 2*lambd_alpha*alpha
+        if np.sin(alpha-beta)>0:
+            dalpha = (v**2+u * np.cos(beta)**2+u * np.sin(beta)**2)*np.cos(alpha-beta) - \
+                    2*v*(-np.sin(alpha)*u * np.cos(beta)+np.cos(alpha)*u * np.sin(beta))*np.sin(alpha-beta)-\
+                    2*v*(np.cos(alpha)*u * np.cos(beta)+np.sin(alpha)*u * np.sin(beta))*np.cos(alpha-beta)
+        else:
+            dalpha = -(v**2+u * np.cos(beta)**2+u * np.sin(beta)**2)*np.cos(alpha-beta) + \
+                    2*v*(-np.sin(alpha)*u * np.cos(beta)+np.cos(alpha)*u * np.sin(beta))*np.sin(alpha-beta)+\
+                    2*v*(np.cos(alpha)*u * np.cos(beta)+np.sin(alpha)*u * np.sin(beta))*np.cos(alpha-beta)
+        # dv = 2*v*np.cos(alpha)*np.cos(alpha-beta)+2*v*np.sin(alpha-beta)**2-\
+        #      2*u * np.cos(beta)*np.cos(alpha)-2*u * np.sin(beta)*np.sin(alpha)*np.sin(alpha-beta)
+        # dalpha = -2*v**2*np.sin(alpha-beta)*np.cos(alpha)*np.sin(alpha)+\
+        #         2*v*np.cos(alpha)*np.sin(alpha-beta)*(v*np.sin(alpha)-u * np.sin(beta))-\
+        #         2*u * np.cos(beta)*v*np.sin(alpha)*np.cos(alpha)
         v = v - lr*dv
-        alpha = alpha -lr*dalpha*0.001
+        alpha = alpha -lr*dalpha*0.0001
 
         v = max(min(v,400/3.6),300/3.6)
         # alpha = max(min(alpha,np.radians(90)),0)
 
-        F_list.append(object_func(v,alpha,u,beta,lambd_v,lambd_alpha))
+        F_list.append(object_func(v,alpha,u,beta))
 
 
     plt.plot(range(n),F_list)
@@ -68,10 +64,9 @@ def grad_descend(v_init,alpha_init,u,beta,lr,n,lambd_v,lambd_alpha):
     plt.show()
     return v,alpha
 
-n=10000
+n=1000
 lr = 0.0001
-lambd_v,lambd_alpha = 1,50
-v_opt,alpha_opt = grad_descend(v,alpha,u,beta,lr,n,lambd_v,lambd_alpha)
+v_opt,alpha_opt = grad_descend(v,alpha,u,beta,lr,n)
 v_opt_kmh = v_opt * 3.6
 alpha_opt_deg = np.degrees(alpha_opt)
 print(f"Optimal flight speed: {v_opt_kmh:.2f} km/h")
