@@ -1,4 +1,4 @@
-import math
+import numpy as np
 '''
 km/h = m/s *3.6
 '''
@@ -8,21 +8,21 @@ rho = 1.29   # 空气密度kg/m^3，ρ
 C = 0.5    # 风阻系数，球体为0.5
 m = 5     # 物资质量kg
 r = 0.08    # 物资半径m
-A = math.pi * (r ** 2)    # 横截面积m^2
+A = np.pi * (r ** 2)    # 横截面积m^2
 
 # 初始条件
-h0 = 307    # 初始高度m
+h0 = 300    # 初始高度m
 v0 = 300/3.6     # 飞行速度m/s
-u = 600/3.6 #发射速度m/s
-alpha = 0.1  # 俯8冲角度
+u = 500/3.6 #发射速度m/s
+alpha = np.radians(45)  # 俯8冲角度
 #风速
-beta = 0     #风速夹角
+beta = np.radians(45)     #风速夹角
 vf = 6      # 风速大小m/s
 
 #对初始速度作修正
 v = v0 + u
-vx = v*math.cos(alpha)
-vy = -v*math.sin(alpha) #与y轴方向相反
+vx = v*np.cos(alpha)
+vy = -v*np.sin(alpha) #与y轴方向相反
 
 #时间步长
 dt = 0.01
@@ -34,21 +34,21 @@ def calc_L(v,alpha,h0):
     x = 0
     y = h0
     # 算初始相对于地面的速度
-    vx = v * math.cos(alpha)
-    vy = -v * math.sin(alpha)  # 与y轴方向相反
+    vx = v * np.cos(alpha)
+    vy = -v * np.sin(alpha)  # 与y轴方向相反
 
     while y>0:
         # 计算空气阻力以及各方向的加速度
         # 相对于空气的速度
-        vx_a = vx - vf * math.cos(beta)
-        vy_a = vy - vf * math.sin(beta)
-        v_a = math.sqrt(vx_a**2 + vy_a**2)
+        vx_a = vx - vf * np.cos(beta)
+        vy_a = vy - vf * np.sin(beta)
+        v_a = np.sqrt(vx_a**2 + vy_a**2)
         # 计算v_a与x正半轴的夹角θ
-        theta = math.acos(vx_a/v_a)
+        theta = np.arccos(vx_a/v_a)
         # 计算空气阻力
         F_air_resistance = 0.5 * rho * v_a ** 2 * C * A
-        a_y = -g + F_air_resistance*math.sin(theta) / m
-        a_x = -F_air_resistance*math.cos(theta)/m
+        a_y = -g + F_air_resistance*np.sin(theta) / m
+        a_x = -F_air_resistance*np.cos(theta)/m
         # 根据欧拉法计算下一时刻的速度和位移
         vy = vy + a_y * dt
         y = y + vy * dt
@@ -57,7 +57,7 @@ def calc_L(v,alpha,h0):
         # 更新时间
         t = t + dt
     d = x
-    L = math.sqrt(x**2 + h0**2)
+    L = np.sqrt(x**2 + h0**2)
     return L,d
 
 L,d= calc_L(v,alpha,h0)

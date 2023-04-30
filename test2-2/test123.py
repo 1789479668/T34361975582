@@ -1,3 +1,3 @@
 import numpy as np
 
-print(np.radians(180))
+print(np.degrees(0.06))

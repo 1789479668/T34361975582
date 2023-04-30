@@ -12,7 +12,7 @@ D = 0.4   # 无人机边长
 v = 400/3.6      # 无人机发射速度，在300~400之间，dv为定值
 alpha = np.radians(45)   # 俯冲角度，dalpha为定制
 u = 6           # 风速
-beta = np.radians(0)    # 风向
+beta = np.radians(45)    # 风向
 
 #俯冲角度alpha与飞行速度V的变化率dalpha、dv为定值
 def object_func(v,alpha,u,beta):
@@ -32,6 +32,8 @@ def grad_descend(v_init,alpha_init,u,beta,lr,n):
     v = v_init
     alpha = alpha_init
     for _ in range(n):
+        pre_v = v
+        pre_alpha = alpha
         dv = 2*v*np.exp(np.sin(alpha-beta))
         # # dalpha = 2*(u * np.cos(beta)*np.sin(alpha)-np.sin(beta)*np.cos(alpha))*abs(np.cos(alpha - beta)) + \
         # #          v**2*abs(np.cos(alpha - beta))*(-np.sin(alpha-beta))
@@ -54,18 +56,21 @@ def grad_descend(v_init,alpha_init,u,beta,lr,n):
         v = max(min(v,400/3.6),300/3.6)
         # alpha = max(min(alpha,np.radians(90)),0)
 
-        F_list.append(object_func(v,alpha,u,beta))
-
-
-    plt.plot(range(n),F_list)
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.title('Line Chart')
-    plt.show()
+    #     F_list.append(object_func(v,alpha,u,beta))
+        if abs(object_func(v,alpha,u,beta) - object_func(pre_v,pre_alpha,u,beta)) < factor or v == 300:
+            break
+    #
+    #
+    # plt.plot(range(n),F_list)
+    # plt.xlabel('x')
+    # plt.ylabel('y')
+    # plt.title('Line Chart')
+    # plt.show()
     return v,alpha
 
 n=1000
 lr = 0.0001
+factor = 0.05
 v_opt,alpha_opt = grad_descend(v,alpha,u,beta,lr,n)
 v_opt_kmh = v_opt * 3.6
 alpha_opt_deg = np.degrees(alpha_opt)

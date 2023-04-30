@@ -77,7 +77,7 @@ def calc_L(v,vf,beta,H0,alpha):
     return L,t3,x
 
 #遍历搜索，不同h0和alpha的值的影响
-with open('output.txt', 'w') as f:
+with open('../output.txt', 'w') as f:
     f.write('L h0 alpha t x1\n')
     for h0 in range(H0_min, H0_max+1, step_h):
         for alpha in range(int(alpha_min*100), int(alpha_max*100)+1, int(step_alpha*100)):
