@@ -2,6 +2,7 @@ import numpy as np
 
 import answer2_1
 
+# 获取v、alpha、d的关系，用于验证假设
 with open('output3-1.txt','w') as f:
     for v in range(300,400):
         for alpha in np.radians(range(90)):
